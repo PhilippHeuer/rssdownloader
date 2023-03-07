@@ -9,13 +9,15 @@ import (
 
 func init() {
 	rootCmd.AddCommand(downloadCmd)
+	downloadCmd.Flags().StringP("config", "c", "feeds.yaml", "config file")
 }
 
 var downloadCmd = &cobra.Command{
 	Use:     "download",
 	Aliases: []string{"dl"},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg, cfgErr := config.LoadConfig("feeds.yaml")
+		configFile, _ := cmd.Flags().GetString("config")
+		cfg, cfgErr := config.LoadConfig(configFile)
 		if cfgErr != nil {
 			log.Fatal().Err(cfgErr).Msg("failed to load configuration")
 		}

@@ -27,6 +27,8 @@ func DownloadFeed(feedConfig config.Feed) error {
 	if _, ok := state.FeedState[feedConfig.Name]; !ok {
 		state.FeedState[feedConfig.Name] = config.FeedState{FetchedAt: time.Now().UTC()}
 	}
+	stateItem := state.FeedState[feedConfig.Name]
+	newestItem := &stateItem.FetchedAt
 
 	// parse feed
 	fp := gofeed.NewParser()
@@ -60,10 +62,15 @@ func DownloadFeed(feedConfig config.Feed) error {
 			if err := downloadItem(item.Link, filepath.Join(feedConfig.OutputDir, fileName)); err != nil {
 				log.Error().Err(err).Str("item", item.Title).Msg("failed to download item")
 			}
+
+			if item.PublishedParsed.After(*newestItem) {
+				newestItem = item.PublishedParsed
+			}
 		}
 	}
 
-	state.FeedState[feedConfig.Name] = config.FeedState{FetchedAt: time.Now().UTC()}
+	stateItem.FetchedAt = *newestItem
+	state.FeedState[feedConfig.Name] = stateItem
 	config.SaveState(filepath.Join(feedConfig.OutputDir, stateFile), state)
 
 	return nil

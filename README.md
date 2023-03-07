@@ -4,6 +4,8 @@ A configurable cli to download files from a feed.
 
 ## Download
 
+Download the binary from the [GitHub Releases](https://github.com/PhilippHeuer/rssdownloader/releases).
+
 ## Configuration
 
 ```yaml

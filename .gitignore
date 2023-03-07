@@ -1,0 +1,10 @@
+# goland
+.idea/*
+
+# generated artifacts
+.dist/*
+.tmp/*
+
+# config
+feeds.yaml
+feed-state.json

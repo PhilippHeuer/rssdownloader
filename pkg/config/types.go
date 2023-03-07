@@ -11,10 +11,11 @@ type Config struct {
 type Feed struct {
 	Name      string `yaml:"name"`
 	URL       string `yaml:"url"`
+	Enabled   bool   `yaml:"enabled"`
+	OutputDir string `yaml:"output"`
+	Template  string `yaml:"template"`
 	Rules     []Rule `yaml:"rules"`
 	Exclude   []Rule `yaml:"exclude"`
-	OutputDir string `yaml:"output"`
-	Enabled   bool   `yaml:"enabled"`
 }
 
 type Rule struct {

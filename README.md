@@ -4,8 +4,6 @@ A configurable cli to download files from a feed.
 
 ## Download
 
-
-
 ## Configuration
 
 ```yaml
@@ -14,9 +12,13 @@ feeds:
     enabled: true
     output: /target-dir
     url: https://example.com/my-feed
+    # use item title as filename
+    template: "{title}"
+    # rules that must match
     rules:
       - type: regex
         value: ".*"
+    # exclude items that matched the rules above
     exclude:
       - type: regex
         value: "prefix.*"

@@ -5,25 +5,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Version will be set at build time
-var Version string
-
-// CommitHash will be set at build time
-var CommitHash string
-
-// RepositoryStatus will be set at build time
-var RepositoryStatus string
-
-// BuildAt will be set at build time
-var BuildAt string
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	status  = "clean"
+)
 
 // Init Hook
 func init() {
-	// Set Version Information
-	cmd.Version = Version
-	cmd.CommitHash = CommitHash
-	cmd.RepositoryStatus = RepositoryStatus
-	cmd.BuildAt = BuildAt
+	// pass version info the version cmd
+	cmd.Version = version
+	cmd.CommitHash = commit
+	cmd.BuildAt = date
+	cmd.RepositoryStatus = status
 }
 
 // CLI Main Entrypoint

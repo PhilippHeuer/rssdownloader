@@ -6,7 +6,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/rs/zerolog v1.31.0
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/thoas/go-funk v0.9.3
 	gopkg.in/yaml.v3 v3.0.1
 )

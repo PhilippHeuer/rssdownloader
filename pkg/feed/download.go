@@ -71,7 +71,10 @@ func DownloadFeed(feedConfig config.Feed) error {
 
 	stateItem.FetchedAt = *newestItem
 	state.FeedState[feedConfig.Name] = stateItem
-	config.SaveState(filepath.Join(feedConfig.OutputDir, stateFile), state)
+	err := config.SaveState(filepath.Join(feedConfig.OutputDir, stateFile), state)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

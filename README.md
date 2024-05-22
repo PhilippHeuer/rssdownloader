@@ -1,6 +1,8 @@
 # RSS File Downloader / CLI
 
-A configurable cli to download files from a feed.
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philippheuer/rssdownloader/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philippheuer/rssdownloader)
+
+> A flexible cli to download files from rss feeds, with support for filtering and templating.
 
 ## Download
 
@@ -16,11 +18,11 @@ feeds:
     url: https://example.com/my-feed
     # use item title as filename
     template: "{title}"
-    # rules that must match
+    # rules, if set items must match at least one rule
     rules:
       - type: regex
         value: ".*"
-    # exclude items that matched the rules above
+    # exclude, all items matching a rule will be excluded (always has precedence over rules)
     exclude:
       - type: regex
         value: "prefix.*"

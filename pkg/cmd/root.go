@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/mattn/go-colorable"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"github.com/thoas/go-funk"
 )
 
 var (
@@ -32,7 +32,7 @@ var rootCmd = &cobra.Command{
 	Short: `rss feed downloader`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// log format
-		if !funk.ContainsString(validLogFormats, cfg.LogFormat) {
+		if !slices.Contains(validLogFormats, cfg.LogFormat) {
 			log.Error().Str("current", cfg.LogFormat).Strs("valid", validLogFormats).Msg("invalid log format specified")
 			os.Exit(1)
 		}
@@ -54,7 +54,7 @@ var rootCmd = &cobra.Command{
 		zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
 		// log level
-		if !funk.ContainsString(validLogLevels, cfg.LogLevel) {
+		if !slices.Contains(validLogLevels, cfg.LogLevel) {
 			log.Error().Str("current", cfg.LogLevel).Strs("valid", validLogLevels).Msg("invalid log level specified")
 			os.Exit(1)
 		}

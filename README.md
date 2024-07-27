@@ -1,6 +1,6 @@
 # RSS File Downloader / CLI
 
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/philippheuer/rssdownloader/badge)](https://securityscorecards.dev/viewer/?uri=github.com/philippheuer/rssdownloader)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/PhilippHeuer/rssdownloader/badge)](https://securityscorecards.dev/viewer/?uri=github.com/PhilippHeuer/rssdownloader)
 
 > A flexible cli to download files from rss feeds, with support for filtering and templating.
 

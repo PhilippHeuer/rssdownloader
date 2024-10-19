@@ -1,11 +1,13 @@
 package feed
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -32,8 +34,11 @@ func DownloadFeed(feedConfig config.Feed) error {
 
 	// parse feed
 	fp := gofeed.NewParser()
-	feed, _ := fp.ParseURL(feedConfig.URL)
-	log.Info().Str("feed", feedConfig.Name).Str("url", feedConfig.URL).Int("items", len(feed.Items)).Str("title", feed.Title).Msg("downloading feed ")
+	feed, err := fp.ParseURL(feedConfig.URL)
+	if err != nil {
+		return errors.Join(errors.New("failed to parse feed"), err)
+	}
+	log.Info().Str("feed", feedConfig.Name).Str("url", feedConfig.URL).Int("items", len(feed.Items)).Str("title", feed.Title).Msg("downloading feed")
 
 	for _, item := range feed.Items {
 		matchingRules := false
@@ -55,12 +60,12 @@ func DownloadFeed(feedConfig config.Feed) error {
 			}
 		}
 
-		log.Trace().Bool("rules_match", matchingRules).Bool("exclude_match", matchingExclude).Str("item", item.Title).Str("item", item.Title).Time("published_at", *item.PublishedParsed).Time("state_last_download_at", state.FeedState[feedConfig.Name].FetchedAt).Msg("processing item")
+		log.Trace().Bool("rules_match", matchingRules).Bool("exclude_match", matchingExclude).Str("item", item.Title).Time("published_at", *item.PublishedParsed).Time("state_last_download_at", state.FeedState[feedConfig.Name].FetchedAt).Msg("processing item")
 		if matchingRules && !matchingExclude && item.PublishedParsed.After(state.FeedState[feedConfig.Name].FetchedAt) {
-			log.Info().Str("item", item.Title).Msg("downloading item")
 			fileName := renderFileNameTemplate(feedConfig.Template, item)
-			if err := downloadItem(item.Link, filepath.Join(feedConfig.OutputDir, fileName)); err != nil {
-				log.Error().Err(err).Str("item", item.Title).Msg("failed to download item")
+			log.Info().Str("item", item.Title).Str("filename", fileName).Msg("downloading item")
+			if dlErr := downloadItem(item.Link, filepath.Join(feedConfig.OutputDir, fileName)); dlErr != nil {
+				log.Error().Err(dlErr).Str("item", item.Title).Msg("failed to download item")
 			}
 
 			if item.PublishedParsed.After(*newestItem) {
@@ -71,7 +76,7 @@ func DownloadFeed(feedConfig config.Feed) error {
 
 	stateItem.FetchedAt = *newestItem
 	state.FeedState[feedConfig.Name] = stateItem
-	err := config.SaveState(filepath.Join(feedConfig.OutputDir, stateFile), state)
+	err = config.SaveState(filepath.Join(feedConfig.OutputDir, stateFile), state)
 	if err != nil {
 		return err
 	}
@@ -106,5 +111,16 @@ func renderFileNameTemplate(template string, item *gofeed.Item) string {
 	}
 
 	template = strings.ReplaceAll(template, "{title}", item.Title)
+	if runtime.GOOS == "windows" {
+		template = sanitizeFileNameForWindows(template)
+	}
 	return template
+}
+
+func sanitizeFileNameForWindows(filename string) string {
+	invalidChars := []string{":", "\\", "/", "*", "?", "\"", "<", ">", "|"}
+	for _, char := range invalidChars {
+		filename = strings.ReplaceAll(filename, char, "-")
+	}
+	return filename
 }

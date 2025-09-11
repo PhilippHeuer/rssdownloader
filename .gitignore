@@ -4,6 +4,7 @@
 # generated artifacts
 .dist/*
 .tmp/*
+bin/*
 
 # config
 feeds.yaml

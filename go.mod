@@ -2,7 +2,7 @@ module github.com/PhilippHeuer/rssdownloader
 
 go 1.24.0
 
-toolchain go1.25.0
+toolchain go1.25.7
 
 require (
 	github.com/mattn/go-colorable v0.1.14

@@ -7,8 +7,8 @@ import (
 )
 
 type Filter struct {
-	rules    []*regexp.Regexp
-	excludes []*regexp.Regexp
+	Rules    []*regexp.Regexp
+	Excludes []*regexp.Regexp
 }
 
 func NewFilter(rules []config.Rule, excludes []config.Rule) (*Filter, error) {
@@ -23,23 +23,23 @@ func NewFilter(rules []config.Rule, excludes []config.Rule) (*Filter, error) {
 	}
 
 	return &Filter{
-		rules:    compiledRules,
-		excludes: compiledExcludes,
+		Rules:    compiledRules,
+		Excludes: compiledExcludes,
 	}, nil
 }
 
 func (f *Filter) Matches(title string) bool {
-	matchesRules := len(f.rules) == 0
+	matchesRules := len(f.Rules) == 0
 	matchesExclude := false
 
-	for _, rule := range f.rules {
+	for _, rule := range f.Rules {
 		if rule.MatchString(title) {
 			matchesRules = true
 			break
 		}
 	}
 
-	for _, exclude := range f.excludes {
+	for _, exclude := range f.Excludes {
 		if exclude.MatchString(title) {
 			matchesExclude = true
 			break

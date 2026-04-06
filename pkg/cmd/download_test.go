@@ -15,18 +15,3 @@ func TestProcessFeedConfigErr(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.ErrorIs(t, err, config.ErrRequiredConfigFieldMissing)
 }
-
-func TestProcessFeedConfigValid(t *testing.T) {
-	feedConfig := config.Feed{
-		Name:      "test-feed",
-		URL:       "https://example.com/feed.xml",
-		Enabled:   true,
-		OutputDir: "/tmp",
-		Template:  "{title}",
-		Rules:     []config.Rule{},
-		Exclude:   []config.Rule{},
-	}
-
-	validErrs := config.ValidateFeedConfig(feedConfig)
-	assert.Empty(t, validErrs, "valid config should have no validation errors")
-}

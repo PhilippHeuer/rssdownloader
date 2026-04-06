@@ -17,9 +17,7 @@ func TestValidateFeedConfigValid(t *testing.T) {
 		Exclude:   []Rule{},
 	})
 
-	if len(errs) != 0 {
-		t.Errorf("expected no errors, got %d", len(errs))
-	}
+	assert.Empty(t, errs, "valid config should have no validation errors")
 }
 
 func TestValidateFeedConfigInvalid(t *testing.T) {

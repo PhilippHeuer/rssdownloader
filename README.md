@@ -2,7 +2,7 @@
 
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/PhilippHeuer/rssdownloader/badge)](https://securityscorecards.dev/viewer/?uri=github.com/PhilippHeuer/rssdownloader)
 
-> A flexible cli to download files from rss feeds, with support for filtering, templating, and pagination.
+> A flexible cli to download files from rss feeds, with support for filtering and templating.
 
 ## Download
 
@@ -11,10 +11,9 @@ Download the binary from the [GitHub Releases](https://github.com/PhilippHeuer/r
 ## Features
 
 - **RSS/Atom Feed Parsing** - Supports standard RSS 2.0 and Atom feeds
-- **Filtering** - Include/exclude items using regex rules
+- **Filtering** - Include/exclude based on complex regex rules
 - **Filename Templating** - Customizable filenames with placeholders
 - **State Tracking** - Remembers last download timestamp, only fetches new items
-- **Timeout Protection** - HTTP requests timeout after 30 seconds
 
 ## Configuration
 

@@ -2,11 +2,19 @@
 
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/PhilippHeuer/rssdownloader/badge)](https://securityscorecards.dev/viewer/?uri=github.com/PhilippHeuer/rssdownloader)
 
-> A flexible cli to download files from rss feeds, with support for filtering and templating.
+> A flexible cli to download files from rss feeds, with support for filtering, templating, and pagination.
 
 ## Download
 
 Download the binary from the [GitHub Releases](https://github.com/PhilippHeuer/rssdownloader/releases).
+
+## Features
+
+- **RSS/Atom Feed Parsing** - Supports standard RSS 2.0 and Atom feeds
+- **Filtering** - Include/exclude items using regex rules
+- **Filename Templating** - Customizable filenames with placeholders
+- **State Tracking** - Remembers last download timestamp, only fetches new items
+- **Timeout Protection** - HTTP requests timeout after 30 seconds
 
 ## Configuration
 
@@ -28,12 +36,29 @@ feeds:
         value: "prefix.*"
 ```
 
-> The download command will create a feed-state.json in the output directory to track the timestamp of the last download, only downloading newly added files.
+### Configuration Options
+
+| Field      | Required | Description                             |
+|------------|----------|-----------------------------------------|
+| `name`     | Yes      | Unique feed identifier                  |
+| `url`      | Yes      | RSS/Atom feed URL                       |
+| `output`   | Yes      | Output directory (auto-created)         |
+| `template` | Yes      | Filename template                       |
+| `enabled`  | No       | Enable/disable feed (default: true)     |
+| `rules`    | No       | Include rules (regex)                   |
+| `exclude`  | No       | Exclude rules (regex, takes precedence) |
 
 ## Usage
 
 ```bash
+# Download all enabled feeds
 rssdownloader download --config feeds.yaml
+
+# Validate configuration
+rssdownloader validate --config feeds.yaml
+
+# List configured feeds
+rssdownloader list --config feeds.yaml
 ```
 
 ## License

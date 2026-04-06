@@ -5,7 +5,9 @@ import (
 )
 
 type Config struct {
-	Feeds []Feed `yaml:"feeds"`
+	Feeds     []Feed  `yaml:"feeds"`
+	Timeout   *int64  `yaml:"timeoutSeconds"` // optional timeout override in seconds
+	UserAgent *string `yaml:"userAgent"`      // optional user agent override
 }
 
 type Feed struct {

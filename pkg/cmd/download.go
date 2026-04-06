@@ -33,7 +33,7 @@ var downloadCmd = &cobra.Command{
 				continue
 			}
 
-			err := processFeed(f)
+			err := processFeed(f, cfg.Timeout, cfg.UserAgent)
 			if err != nil {
 				log.Error().Err(err).Int("index", i).Str("feed", f.Name).Str("url", f.URL).Msg("failed to query feed")
 			}
@@ -41,14 +41,14 @@ var downloadCmd = &cobra.Command{
 	},
 }
 
-func processFeed(f config.Feed) error {
+func processFeed(f config.Feed, timeout *int64, userAgent *string) error {
 	// skip invalid feeds
 	errs := config.ValidateFeedConfig(f)
 	if len(errs) > 0 {
 		return errors.Join(errs...)
 	}
 
-	err := feed.DownloadFeed(f)
+	err := feed.DownloadFeed(f, timeout, userAgent)
 	if err != nil {
 		return err
 	}

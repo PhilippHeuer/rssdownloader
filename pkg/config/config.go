@@ -70,8 +70,11 @@ func LoadState(filename string) (State, error) {
 }
 
 func SaveState(filename string, state State) error {
-	file, _ := json.MarshalIndent(state, "", " ")
-	err := os.WriteFile(filename, file, 0644)
+	file, err := json.MarshalIndent(state, "", " ")
+	if err != nil {
+		return errors.Join(ErrFailedToWriteState, err)
+	}
+	err = os.WriteFile(filename, file, 0600)
 	if err != nil {
 		return errors.Join(ErrFailedToWriteState, err)
 	}

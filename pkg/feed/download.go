@@ -2,6 +2,7 @@ package feed
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -16,23 +17,41 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const stateFile = "feed-state.json"
+const (
+	stateFile      = "feed-state.json"
+	defaultTimeout = 30 * time.Second
+	maxFileSize    = 500 * 1024 * 1024
+)
+
+var httpClient = &http.Client{
+	Timeout: defaultTimeout,
+}
 
 func DownloadFeed(feedConfig config.Feed) error {
-	// state
+	if err := os.MkdirAll(feedConfig.OutputDir, 0755); err != nil {
+		return fmt.Errorf("failed to create output directory: %w", err)
+	}
+
 	state, stateErr := config.LoadState(filepath.Join(feedConfig.OutputDir, stateFile))
 	if stateErr != nil {
 		log.Fatal().Err(stateErr).Msg("failed to load state")
 	}
 
-	// init state
 	if _, ok := state.FeedState[feedConfig.Name]; !ok {
 		state.FeedState[feedConfig.Name] = config.FeedState{FetchedAt: time.Now().UTC()}
 	}
 	stateItem := state.FeedState[feedConfig.Name]
 	newestItem := &stateItem.FetchedAt
 
-	// parse feed
+	rules, err := compileRules(feedConfig.Rules)
+	if err != nil {
+		return fmt.Errorf("failed to compile rules: %w", err)
+	}
+	excludes, err := compileRules(feedConfig.Exclude)
+	if err != nil {
+		return fmt.Errorf("failed to compile exclude rules: %w", err)
+	}
+
 	fp := gofeed.NewParser()
 	feed, err := fp.ParseURL(feedConfig.URL)
 	if err != nil {
@@ -41,22 +60,20 @@ func DownloadFeed(feedConfig config.Feed) error {
 	log.Info().Str("feed", feedConfig.Name).Str("url", feedConfig.URL).Int("items", len(feed.Items)).Str("title", feed.Title).Msg("downloading feed")
 
 	for _, item := range feed.Items {
-		matchingRules := false
+		matchingRules := len(rules) == 0
 		matchingExclude := false
 
-		for _, rule := range feedConfig.Rules {
-			if rule.Type == "regex" {
-				if matched, _ := regexp.MatchString(rule.Value, item.Title); matched {
-					matchingRules = true
-				}
+		for _, rule := range rules {
+			if matched := rule.MatchString(item.Title); matched {
+				matchingRules = true
+				break
 			}
 		}
 
-		for _, exclude := range feedConfig.Exclude {
-			if exclude.Type == "regex" {
-				if matched, _ := regexp.MatchString(exclude.Value, item.Title); matched {
-					matchingExclude = true
-				}
+		for _, exclude := range excludes {
+			if matched := exclude.MatchString(item.Title); matched {
+				matchingExclude = true
+				break
 			}
 		}
 
@@ -84,12 +101,34 @@ func DownloadFeed(feedConfig config.Feed) error {
 	return nil
 }
 
+func compileRules(rules []config.Rule) ([]*regexp.Regexp, error) {
+	var compiled []*regexp.Regexp
+	for _, rule := range rules {
+		if rule.Type == "regex" {
+			re, err := regexp.Compile(rule.Value)
+			if err != nil {
+				return nil, fmt.Errorf("invalid regex pattern %q: %w", rule.Value, err)
+			}
+			compiled = append(compiled, re)
+		}
+	}
+	return compiled, nil
+}
+
 func downloadItem(url string, filename string) error {
-	resp, err := http.Get(url)
+	resp, err := httpClient.Get(url)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	if resp.ContentLength > maxFileSize {
+		return fmt.Errorf("file size %d exceeds maximum allowed size %d", resp.ContentLength, maxFileSize)
+	}
 
 	file, err := os.Create(filename)
 	if err != nil {
@@ -97,7 +136,8 @@ func downloadItem(url string, filename string) error {
 	}
 	defer file.Close()
 
-	_, err = io.Copy(file, resp.Body)
+	limitedReader := io.LimitReader(resp.Body, maxFileSize)
+	_, err = io.Copy(file, limitedReader)
 	if err != nil {
 		return err
 	}

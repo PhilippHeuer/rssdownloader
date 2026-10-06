@@ -5,7 +5,7 @@ go 1.25.0
 toolchain go1.26.7
 
 require (
-	github.com/mattn/go-colorable v0.1.15
+	github.com/mattn/go-colorable v0.1.16
 	github.com/mmcdole/gofeed v1.5.0
 	github.com/rs/zerolog v1.35.1
 	github.com/spf13/cobra v1.10.2
